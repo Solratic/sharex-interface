@@ -19,8 +19,11 @@
                 <span class="item-detail--subtitle">{{ fileSize(item.file.size) }} • {{ item.file.type }}</span>
               </div>
               <div class="item-action">
-                <a title="Open Link" target="_blank" :href="generateLink(item)" rel="noopener">
+                <a v-if="isImage(item)" title="Open Link" target="_blank" :href="generateLink(item)" rel="noopener">
                   <i-ri-external-link-fill class="icon-color" />
+                </a>
+                <a title="Download" @click="item.cid ? download(item) : {}">
+                  <i-mdi-download class="icon-color" />
                 </a>
                 <a title="Delete" @click="onDeleteResult(index)">
                   <i-ri-delete-back-2-line class="icon-color" />
@@ -54,11 +57,22 @@ import { ethers } from "ethers";
 import SearchResult from "@src/components/VUpload/SearchResult.vue";
 import { useWallet } from "@src/store/index";
 import { Notyf } from "notyf";
+import { getBlob, downloadUint8ArrayFile } from "@src/services/ipfs"
 
 export default {
   name: "PanelResult",
   components: {
     SearchResult
+  },
+  methods: {
+    isImage: (item: FileDetail): boolean => {
+      return item.file.type.startsWith("image/");
+    },
+    download: async (item: FileDetail) => {
+      getBlob(item.cid!).then(async (blob) => {
+        downloadUint8ArrayFile(blob, item.file.name);
+      });
+    }
   },
   setup() {
     const notyf = inject("notyf") as Notyf;

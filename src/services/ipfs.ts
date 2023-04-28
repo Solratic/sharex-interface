@@ -52,13 +52,14 @@ export const getBlob = async (hash: string): Promise<Uint8Array> => {
   }
 };
 
-export const downloadUint8ArrayFile = async (data: Uint8Array, mimeType: string = "application/octet-stream") => {
+export const downloadUint8ArrayFile = async (data: Uint8Array, filename?: string, mimeType: string = "application/octet-stream") => {
   // Convert the data to a Blob
   const blob = new Blob([data], { type: mimeType });
 
   // Create an anchor element to download the file
   const anchor = document.createElement("a");
   anchor.href = URL.createObjectURL(blob);
+  if (filename) anchor.download = filename;
 
   // Append the anchor to the DOM, click it, and remove it
   document.body.appendChild(anchor);
