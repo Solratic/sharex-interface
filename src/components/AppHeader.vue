@@ -8,8 +8,8 @@
     </div>
     <div class="header-menu">
       <nav>
-        <router-link :to="{ name: 'home' }">Upload</router-link>
-        <router-link :to="{ name: 'download' }">Download</router-link>
+        <router-link :to="{ name: 'home' }" active-class="font-bold">Upload</router-link>
+        <router-link :to="{ name: 'download' }" active-class="font-bold">Download</router-link>
         <i :title="`Switch to ${isDark ? 'Light' : 'Dark'} Theme`">
           <i-mdi-brightness-7 v-if="isDark" class="icon-color" @click="toggleTheme" />
           <i-mdi-brightness-4 v-else class="icon-color" @click="toggleTheme" />
@@ -177,6 +177,10 @@ export default {
       }
     }
   }
+}
+
+.font-bold {
+  font-weight: 900;
 }
 
 body.dark-theme {
