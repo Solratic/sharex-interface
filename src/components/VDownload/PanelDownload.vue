@@ -1,7 +1,8 @@
 <template>
     <section id="panel-download">
         <div class="search-box">
-            <input type="text" placeholder="Please input ipfs url or key" @keyup.enter="onURLSubmit" :disabled="isLoading">
+            <input v-model="inputText" type="text" placeholder="Please input ipfs url or key" @keyup.enter="onURLSubmit"
+                :disabled="isLoading">
             <button @click="onURLSubmit" :disabled="isLoading">
                 <i-mdi-download></i-mdi-download>
             </button>
@@ -20,21 +21,18 @@ import { Notyf } from "notyf";
 
 export default {
     name: "PanelDownload",
-    data() {
-        return {
-        }
-    },
     setup() {
         const notyf = inject("notyf") as Notyf;
         const isLoading = ref(false);
+        const inputText = ref("");
 
-        const onURLSubmit = async (event: Event) => {
+        const onURLSubmit = async () => {
+            if (isLoading.value) {
+                return;
+            }
             try {
-                if (isLoading.value) {
-                    return;
-                }
                 isLoading.value = true;
-                const value = (event.target as HTMLInputElement).value;
+                const value = inputText.value;
                 if (!value) {
                     return;
                 }
@@ -66,17 +64,19 @@ export default {
                     url = hash;
                 }
                 await getBlob(url).then((byteArray) => {
-                    downloadUint8ArrayFile(byteArray, "file")
+                    downloadUint8ArrayFile(byteArray)
                 })
             } catch (e) {
                 const error = e as Error;
                 notyf.error(error.message)
             } finally {
                 isLoading.value = false;
+                inputText.value = "";
             }
         }
 
         return {
+            inputText,
             isLoading,
             onURLSubmit,
         }
