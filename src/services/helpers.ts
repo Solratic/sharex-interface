@@ -1,4 +1,5 @@
 import { FileDetail } from "./types";
+import JSZip from "jszip";
 
 /**
  * File size human readble
@@ -74,3 +75,63 @@ export const generateRandomString = (length: number) => {
   }
   return result;
 }
+
+type Folder = {
+  name: string;
+  files: File[];
+  folders: Folder[];
+};
+
+async function convertFileListToFolder(fileList: FileList): Promise<Folder> {
+  const rootFolder: Folder = { name: "", files: [], folders: [] };
+
+  for (const file of Array.from(fileList)) {
+    const path = file.webkitRelativePath.split("/");
+    let currentFolder = rootFolder;
+
+    // Traverse the folder tree and add missing folders
+    for (let j = 0; j < path.length - 1; j++) {
+      const folderName = path[j];
+      let folder = currentFolder.folders.find((f) => f.name === folderName);
+
+      if (!folder) {
+        folder = { name: folderName, folders: [], files: [] };
+        currentFolder.folders.push(folder);
+      }
+
+      currentFolder = folder;
+    }
+
+    // Add file to current folder
+    currentFolder.files.push(file);
+  }
+
+  return rootFolder;
+}
+async function addFolderToZip(zip: JSZip, basePath: string, folder: any): Promise<void> {
+  const folderPath = `${basePath}${folder.name}/`;
+
+  // Add files to ZIP archive
+  for (const file of folder.files || []) {
+    const filePath = `${folderPath}${file.name}`;
+    zip.file(filePath, file);
+  }
+
+  // Add subfolders to ZIP archive
+  for (const subfolder of folder.folders || []) {
+    await addFolderToZip(zip, folderPath, subfolder);
+  }
+}
+
+export const zipUploadedFolder = async (files: FileList): Promise<File> => {
+  const folder = await convertFileListToFolder(files);
+  const zip = new JSZip();
+  await addFolderToZip(zip, "", folder);
+  const blob = await zip.generateAsync({ type: "blob" });
+
+  // Convert the Blob to a File
+  const fileName = `compress-${generateRandomString(32)}.zip`;
+  const file = new File([blob], fileName, { type: "application/zip" });
+
+  return file;
+};

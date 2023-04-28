@@ -1,16 +1,20 @@
 <template>
   <section id="panel-upload">
     <div class="content panel-upload--content">
+      <button class="switch-button" @click="folderOnly = !folderOnly">
+        <i-mdi-folder v-if="folderOnly" />
+        <i-mdi-file v-else />
+      </button>
       <div class="panel-upload--dropzone" :class="{ active: isDragged }" @dragenter="onDragEnter" @dragleave="onDragLeave"
         @drop.prevent="onDropHandler" @dragover.prevent>
-        <input type="file" multiple directory ref="fileRef" @change="onFileChangedHandler" />
+        <input type="file" multiple :webkitdirectory="folderOnly" ref="fileRef" @change="onFileChangedHandler" />
 
         <div class="dropzone-label" @click="openSelectFile">
           <i-mdi-timer-sand v-if="(fileCount > 0)" class="icon-color" />
           <i-mdi-upload v-else class="icon-color" />
 
-          <span>Drop files here or click to select files.</span>
-
+          <span v-if="folderOnly">Drop folders here or click to select folders.</span>
+          <span v-else>Drop files here or click to select files.</span>
           <div class="dropzone-is-loading" :class="{ active: (fileCount > 0) }">
             <div class="dropzone-loading--bar"></div>
           </div>
@@ -31,7 +35,7 @@ import { computed, inject, ref } from "vue";
 
 import { useStore } from "@src/store";
 import { uploadBlob } from "@src/services/ipfs"
-import { fileSize, generateRandomString } from "@src/services/helpers";
+import { fileSize, generateRandomString, zipUploadedFolder } from "@src/services/helpers";
 import { useWallet } from "@src/store/index";
 import { useMetaMaskWallet } from "vue-connect-wallet";
 import { Sharex__factory } from "@src/types/index";
@@ -48,6 +52,7 @@ export default {
     const finished = ref(0);
     const isUploading = ref(false);
 
+    const folderOnly = ref(false);
     const wallet = useMetaMaskWallet();
     const store = useStore();
     const walletStore = useWallet();
@@ -119,7 +124,12 @@ export default {
       isUploading.value = true;
 
       if (fileRef.value?.files) {
-        store.addFiles(...fileRef.value.files);
+        if (folderOnly.value) {
+          const singleZip = await zipUploadedFolder(fileRef.value?.files);
+          store.addFiles(singleZip);
+        } else {
+          store.addFiles(...fileRef.value.files);
+        }
       }
 
       const files = store.files.map((file: any) => uploadFileHandler(file));
@@ -160,6 +170,7 @@ export default {
     });
 
     return {
+      folderOnly,
       finished,
       fileRef,
       fileCount,
@@ -186,6 +197,19 @@ section#panel-upload {
   .panel-upload--content .panel-upload--dropzone {
     width: 100%;
     height: 100%;
+  }
+
+  .switch-button {
+    all: unset;
+    cursor: pointer;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    font-size: x-large;
+    border-radius: 50%;
+    color: var(--gradient-500);
+    animation: pulse 2s infinite ease-in-out;
   }
 
   .panel-upload--dropzone {
@@ -327,6 +351,21 @@ body.dark-theme {
         background-color: var(--gradient-100);
       }
     }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    color: var(--gradient-100);
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
 

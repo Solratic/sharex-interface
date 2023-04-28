@@ -11,6 +11,7 @@
   "dependencies": {
     "ethers": "^5.7.2",
     "ipfs-core": "^0.18.0",
+    "jszip": "^3.10.1",
     "notyf": "^3.10.0",
     "pinia": "^2.0.0-rc.6",
     "vue": "^3.2.4",
