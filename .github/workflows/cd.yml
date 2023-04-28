@@ -1,9 +1,13 @@
 name: Build and Deploy
+
 on:
   release:
     types: [published]
+  workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
   build-and-deploy:
     concurrency: ci-${{ github.ref }}
@@ -24,4 +28,4 @@ jobs:
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist # The folder the action should deploy.
+          folder: ./dist # The folder the action should deploy.

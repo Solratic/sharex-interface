@@ -17,10 +17,10 @@ export default defineConfig({
   build: {
     target: "esnext",
   },
-  optimizeDeps: { // 👈 optimizedeps
+  base: "/sharex-interface/",
+  optimizeDeps: {
     esbuildOptions: {
       target: "esnext",
-      // Node.js global to browser globalThis
       define: {
         global: 'globalThis'
       },
@@ -38,13 +38,13 @@ export default defineConfig({
     }),
     Icons(),
     VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['/favicon.svg'],
       manifest: {
         name: "Sharex - Instant File Sharing",
         short_name: "Sharex",
         description: "Instant File Sharing powered by IPFS Protocol",
         theme_color: "#212121",
-        registerType: "autoUpdate",
-        includeAssets: ['/favicon.svg'],
         icons: [
           {
             src: "/icons/icon-192x192.png",
