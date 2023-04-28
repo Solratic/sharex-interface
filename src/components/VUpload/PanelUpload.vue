@@ -91,29 +91,31 @@ export default {
     const uploadFileHandler = async (file: File) => {
       const result = await uploadBlob(file);
       if (walletStore.address) {
-        let secret = generateRandomString(32);
-        result.data.secret = secret;
-        uploadToContract(result.data.cid!, secret)
-          .then((reciept) => {
-            result.data.secret = secret;
-            notyf.success(`files successfully recored by contract.`);
-          })
-          .catch(err => {
-            console.error(err)
-            notyf.error(err);
-          });
+        try {
+          let secret = generateRandomString(32);
+          result.data.secret = secret;
+          await uploadToContract(result.data.cid!, secret)
+            .then((reciept) => {
+              result.data.secret = secret;
+            })
+            .catch(err => {
+              throw err
+            });
+        } catch (err) {
+          console.error(err)
+          result.error = err as Error;
+        }
       }
-
-      finished.value++;
-
       const { error } = result;
-      if (error && error instanceof Error) notyf.error(error.message);
-
+      if (error && error instanceof Error) {
+        notyf.error(error.message)
+      } else {
+        finished.value++;
+      }
       return result;
     }
 
     const onFileChangedHandler = async () => {
-      console.log("##############", fileRef.value?.files)
       isUploading.value = true;
 
       if (fileRef.value?.files) {

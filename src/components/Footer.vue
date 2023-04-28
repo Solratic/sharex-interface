@@ -1,7 +1,7 @@
 <template>
     <footer>
         <div class="container">
-            <span>&copy; {{ currentYear }} Solratic | sharex</span>
+            <span>&copy; {{ currentYear }} Solratic | ShaRex</span>
             <a class="github" href="https://github.com/solratic/sharex-interface" target="_blank" rel="noreferrer noopener">
                 <i-mdi-github />
             </a>
