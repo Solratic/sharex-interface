@@ -14,6 +14,9 @@ export default defineConfig({
       "@src": resolve(__dirname, "src"),
     },
   },
+  build: {
+    target: "esnext",
+  },
   optimizeDeps: { // 👈 optimizedeps
     esbuildOptions: {
       target: "esnext",
