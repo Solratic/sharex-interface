@@ -8,9 +8,9 @@ const routes = [
     component: VUpload
   },
   {
-    path: "/receive",
-    name: "receive",
-    component: () => import("@src/views/Receive.vue")
+    path: "/download",
+    name: "download",
+    component: () => import("@src/views/VDownload.vue")
   }
 ];
 

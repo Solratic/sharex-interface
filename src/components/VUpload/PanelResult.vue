@@ -8,36 +8,38 @@
           <span v-if="search !== ''">No results. Try other file name.</span>
           <span v-else>List of files that you upload will appear here.</span>
         </div>
+        <TransitionGroup name="list" tag="div">
+          <div class="content-file--item" v-for="(item, index) in files" :key="index">
+            <div class="item-content">
+              <div class="item-icon">
+                <i-ri-file-list-3-line class="icon-color" />
+              </div>
+              <div class="item-detail">
+                <span class="item-detail--title" :title="item.file.name">{{ item.file.name }}</span>
+                <span class="item-detail--subtitle">{{ fileSize(item.file.size) }} • {{ item.file.type }}</span>
+              </div>
+              <div class="item-action">
+                <a title="Open Link" target="_blank" :href="generateLink(item)" rel="noopener">
+                  <i-ri-external-link-fill class="icon-color" />
+                </a>
+                <a title="Delete" @click="onDeleteResult(index)">
+                  <i-ri-delete-back-2-line class="icon-color" />
+                </a>
+              </div>
+            </div>
+            <div class="item-cid">
+              <label>
+                <input class="input-cid" type="text" readonly
+                  @focus="(event) => (event.target as HTMLInputElement).select()" :value="getLinkOrKey(item)" />
+              </label>
 
-        <div class="content-file--item" v-for="(item, index) in files" :key="index">
-          <div class="item-content">
-            <div class="item-icon">
-              <i-ri-file-list-3-line class="icon-color" />
-            </div>
-            <div class="item-detail">
-              <span class="item-detail--title" :title="item.file.name">{{ item.file.name }}</span>
-              <span class="item-detail--subtitle">{{ fileSize(item.file.size) }} • {{ item.file.type }}</span>
-            </div>
-            <div class="item-action">
-              <a title="Open Link" target="_blank" :href="generateLink(item)" rel="noopener">
-                <i-ri-external-link-fill class="icon-color" />
-              </a>
-              <a title="Delete">
-                <i-ri-delete-back-2-line class="icon-color" @click="onDeleteResult(idx)" />
+              <a title="Copy to clipboard"
+                @click="(walletStore.address === '' && !!item.secret) ? () => { } : copyFileLink(item)">
+                <i-ri-clipboard-line class="icon-color" />
               </a>
             </div>
           </div>
-          <div class="item-cid">
-            <label>
-              <input class="input-cid" type="text" readonly
-                @focus="(event) => (event.target as HTMLInputElement).select()" :value="getLinkOrKey(item)" />
-            </label>
-
-            <a title="Copy to clipboard" @click="copyFileLink(item)">
-              <i-ri-clipboard-line class="icon-color" />
-            </a>
-          </div>
-        </div>
+        </TransitionGroup>
       </div>
     </div>
   </section>
@@ -66,7 +68,7 @@ export default {
 
     const generateKey = (item: FileDetail) => {
       if (walletStore.address === "") {
-        return "Please sign-in to view keys";
+        return "Please sign-in to view hashed keys";
       }
       return ethers.utils.solidityKeccak256(["string", "string", "address"], [item.cid, item.secret, walletStore.address]);
     }
@@ -89,8 +91,9 @@ export default {
       search.value = ($event.target as HTMLInputElement).value;
     }
 
-    const onDeleteResult = (idx: number) => {
-      store.deleteResult(idx);
+    const onDeleteResult = (index: number) => {
+      store.deleteResult(index);
+      notyf.success("Deleted!");
     }
 
     const files = computed(() => store
@@ -106,6 +109,7 @@ export default {
     return {
       search,
       files,
+      walletStore,
       fileSize,
       copyFileLink: copyLink,
       generateLink,
@@ -262,5 +266,23 @@ body.dark-theme {
       }
     }
   }
+}
+
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>

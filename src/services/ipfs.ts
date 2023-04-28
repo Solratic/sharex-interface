@@ -24,28 +24,56 @@ export const storeBlob = async (blob: Blob): Promise<string> => {
 };
 
 /**
- * Retrieves a blob of data from IPFS network using the hash provided as input.
+ * Retrieves a Uint8Array of data from IPFS network using the hash provided as input.
  * The hash is used to retrieve the data stream using the 'node.cat' method.
  * 
  * @param {string} hash - The hash of the data to be retrieved from IPFS network.
- * @returns {Promise<string>} - The blob of data retrieved from IPFS network.
+ * @returns {Promise<Uint8Array>} - The Uint8Array of data retrieved from IPFS network.
  * @throws {Error} - If there is any error while downloading the data from IPFS network.
  */
-export const getBlob = async (hash: string): Promise<string> => {
+export const getBlob = async (hash: string): Promise<Uint8Array> => {
   try {
     const stream = node.cat(hash);
-    const decoder = new TextDecoder()
-    let data = ''
+    const chunks = [];
     for await (const chunk of stream) {
-      // chunks of data are returned as a Uint8Array, convert it back to a string
-      data += decoder.decode(chunk, { stream: true })
+      chunks.push(chunk);
     }
-    return data
+    const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+      result.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return result;
   } catch (e) {
-    console.error(e)
-    throw new Error(`Error while download from IPFS Network`)
+    console.error(e);
+    throw new Error(`Error while downloading from IPFS Network`);
   }
+};
+
+export const downloadUint8ArrayFile = async (data: Uint8Array, fileName: string, mimeType: string = "application/octet-stream") => {
+  // Convert the data to a Blob
+  const blob = new Blob([data], { type: mimeType });
+
+  // Create an anchor element to download the file
+  const anchor = document.createElement("a");
+  anchor.href = URL.createObjectURL(blob);
+  anchor.download = fileName;
+
+  // Append the anchor to the DOM, click it, and remove it
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+
+  // Revoke the object URL to free memory
+  setTimeout(() => {
+    URL.revokeObjectURL(anchor.href);
+  }, 100);
 }
+
+
+
 
 
 /**

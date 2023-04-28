@@ -2,12 +2,14 @@
   <header id="header">
     <div class="header-title">
 
-      <h1>Sharex<span class="emoji">⚡</span></h1>
+      <h1>ShaRex<span class="emoji">⚡</span></h1>
 
       <span>Instant File Sharing powered by IPFS Protocol</span>
     </div>
     <div class="header-menu">
       <nav>
+        <router-link :to="{ name: 'home' }">Upload</router-link>
+        <router-link :to="{ name: 'download' }">Download</router-link>
         <i :title="`Switch to ${isDark ? 'Light' : 'Dark'} Theme`">
           <i-mdi-brightness-7 v-if="isDark" class="icon-color" @click="toggleTheme" />
           <i-mdi-brightness-4 v-else class="icon-color" @click="toggleTheme" />
@@ -136,7 +138,7 @@ export default {
   .header-menu {
     display: flex;
     align-items: center;
-    gap: 1em;
+    gap: 2em;
 
     nav {
       display: flex;
@@ -144,6 +146,7 @@ export default {
       justify-content: center;
       text-align: right;
       padding: 0.3em;
+      gap: 1em;
 
       a {
         color: var(--contrast-color);

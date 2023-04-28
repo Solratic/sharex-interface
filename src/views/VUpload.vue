@@ -22,31 +22,8 @@ export default {
   name: "VUpload",
   components: {
     PanelUpload,
-    PanelResult
+    PanelResult,
   },
-  setup() {
-    const NotfyProvider = new Notyf({
-      duration: 2000,
-      position: {
-        x: 'center',
-        y: 'bottom'
-      },
-      types: [
-        {
-          type: 'loading',
-          background: 'orange',
-          duration: 0,
-          dismissible: true,
-          icon: {
-            className: 'icon icon-loading',
-            tagName: 'i'
-          }
-        },
-      ]
-    })
-
-    provide("notyf", NotfyProvider);
-  }
 }
 </script>
 
@@ -62,6 +39,17 @@ section#content {
     justify-content: center;
 
     height: 100%;
+
+    .tab {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      width: 12em;
+      height: 4em;
+      border-radius: 1em;
+    }
 
     .main-content {
       position: absolute;
