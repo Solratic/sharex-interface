@@ -9,7 +9,7 @@
           <span v-else>List of files that you upload will appear here.</span>
         </div>
         <TransitionGroup name="list" tag="div">
-          <div class="content-file--item" v-for="(item, index) in files" :key="index">
+          <div class="content-file--item" v-for="(item, index) in files" :key="item.id">
             <div class="item-content">
               <div class="item-icon">
                 <i-ri-file-list-3-line class="icon-color" />
@@ -25,7 +25,7 @@
                 <a title="Download" @click="item.cid ? download(item) : {}">
                   <i-mdi-download class="icon-color" />
                 </a>
-                <a title="Delete" @click="onDeleteResult(index)">
+                <a title="Delete" @click="onDeleteResult(item)">
                   <i-ri-delete-back-2-line class="icon-color" />
                 </a>
               </div>
@@ -105,8 +105,9 @@ export default {
       search.value = ($event.target as HTMLInputElement).value;
     }
 
-    const onDeleteResult = (index: number) => {
-      store.deleteResult(index);
+    const onDeleteResult = (item: FileDetail) => {
+      if (!item.id) return;
+      store.deleteResult(item.id);
       notyf.success("Deleted!");
     }
 

@@ -15,10 +15,12 @@
 
           <span v-if="folderOnly">Drop folders here or click to select folders.</span>
           <span v-else>Drop files here or click to select files.</span>
-          <div class="dropzone-is-loading" :class="{ active: (fileCount > 0) }">
+          <div class="dropzone-is-loading" :class="{ active: (fileCount > 0 || isUploading) }">
             <div class="dropzone-loading--bar"></div>
           </div>
-          <span v-show="(fileCount > 0)">{{ (fileCount - finished) }} of {{ fileCount }} files being transfered.</span>
+          <span v-show="fileCount === 0 && isUploading"> Preparing </span>
+          <span v-show="(fileCount > 0 && isUploading)">{{ (fileCount - finished) }} of {{ fileCount }} files being
+            transfered.</span>
         </div>
 
         <div class="dropzone-details">
@@ -42,6 +44,7 @@ import { Sharex__factory } from "@src/types/index";
 import { ethers } from "ethers"
 import { PromiseOrValue } from "@src/types/common";
 import { Notyf } from "notyf";
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   name: "PanelUpload",
@@ -56,6 +59,7 @@ export default {
     const wallet = useMetaMaskWallet();
     const store = useStore();
     const walletStore = useWallet();
+
 
     const onDropHandler = ($event: DragEvent) => {
       if (isUploading.value) return false;
@@ -117,6 +121,7 @@ export default {
       } else {
         finished.value++;
       }
+      result.data.id = uuidv4();
       return result;
     }
 
@@ -171,6 +176,7 @@ export default {
 
     return {
       folderOnly,
+      isUploading,
       finished,
       fileRef,
       fileCount,

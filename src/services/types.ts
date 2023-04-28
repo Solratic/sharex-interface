@@ -6,6 +6,7 @@ export interface FileDetail {
         size: number;
         created_at: number;
     };
+    id: string;
     secret?: string;
 }
 

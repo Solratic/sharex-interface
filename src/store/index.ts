@@ -34,8 +34,8 @@ export const useStore = defineStore({
       db.data!.results = [...this.results];
       db.write();
     },
-    deleteResult(this: StoreState, idx: number) {
-      this.results.splice(idx, 1);
+    deleteResult(this: StoreState, _id: string) {
+      this.results = this.results.filter(({ id }) => id !== _id);
       db.data!.results = [...this.results];
       db.write();
     },
