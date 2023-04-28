@@ -2,7 +2,7 @@
   <header id="header">
     <div class="header-title">
 
-      <h1>ShaRex<span class="emoji">⚡</span></h1>
+      <h1 @click="handleToHomePage">ShaRex<span class="emoji">⚡</span></h1>
 
       <span>Instant File Sharing powered by IPFS Protocol</span>
     </div>
@@ -27,6 +27,7 @@ import { ref } from "vue";
 import { ConnectWalletButton } from "vue-connect-wallet";
 import { useMetaMaskWallet } from "vue-connect-wallet";
 import { useWallet } from "@src/store/index";
+import { useRouter } from "vue-router";
 import "vue-connect-wallet/dist/style.css";
 
 export default {
@@ -88,10 +89,17 @@ export default {
       }
     };
 
+    const router = useRouter();
+    const handleToHomePage = async () => {
+      await router.isReady()
+      router.push({ name: "home" })
+    };
+
     return {
       isDark,
       toggleTheme,
       handleConnect,
+      handleToHomePage,
       address,
     }
   },
@@ -118,6 +126,7 @@ export default {
       font-weight: 700;
       margin: 0 0 8px 0;
       color: #333;
+      cursor: pointer;
 
       span.emoji {
         font-size: 1.6rem;
