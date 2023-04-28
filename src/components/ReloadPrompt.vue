@@ -22,9 +22,9 @@ const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW();
 export default {
   name: "ReloadPrompt",
   setup() {
-    const watcherStop = watch([ offlineReady, needRefresh ], (now, prev) => {
-      const [ offlineNow, refreshNow ] = now;
-      const [ offlinePrev, refreshPrev ] = prev;
+    const watcherStop = watch([offlineReady, needRefresh], (now, prev) => {
+      const [offlineNow, refreshNow] = now;
+      const [offlinePrev, refreshPrev] = prev;
 
       if (offlineNow === true && offlinePrev === false) {
         setTimeout(() => {
@@ -66,7 +66,7 @@ export default {
     border-radius: 1rem;
     padding: 0.8rem;
     margin-bottom: 0.8rem;
-    
+
     font-size: 0.8rem;
 
     svg {

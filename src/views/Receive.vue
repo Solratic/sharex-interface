@@ -7,7 +7,7 @@
     </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { Sharex__factory } from "@src/types/index";
 import { useMetaMaskWallet } from "vue-connect-wallet";
@@ -32,7 +32,7 @@ const getHashFromContract = async () => {
     if (!isConnected()) {
         await wallet.connect();
     }
-    const provider = await new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const sharex = Sharex__factory.connect(walletStore.address, provider).attach("0x3FD611658eE18cC8aa91De4CD5E86FE2a9484309")
     sharex.getFile(search.value).then((hash) => {
         getBlob(hash).then((data) => {

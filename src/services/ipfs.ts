@@ -1,4 +1,7 @@
 import * as IPFS from 'ipfs-core'
+import type { FileDetail, SafeAsync } from './types';
+
+
 
 const node = await IPFS.create();
 
@@ -9,17 +12,16 @@ const node = await IPFS.create();
  * @returns {Promise<string>} - The hash of the uploaded blob of data.
  * @throws {Error} - If there is any error while uploading the data to IPFS network.
  */
-
-export const storeBlob = async (blob) => {
+export const storeBlob = async (blob: Blob): Promise<string> => {
   try {
-    const result = node.add(blob)
-    const hash = (await result).cid.toString()
-    return hash
+    const result = await node.add(blob);
+    const hash = result.cid.toString();
+    return hash;
   } catch (e) {
-    console.error(e)
-    throw new Error(`Error while upload into IPFS Network`)
+    console.error(e);
+    throw new Error(`Error while uploading to IPFS Network`);
   }
-}
+};
 
 /**
  * Retrieves a blob of data from IPFS network using the hash provided as input.
@@ -29,7 +31,7 @@ export const storeBlob = async (blob) => {
  * @returns {Promise<string>} - The blob of data retrieved from IPFS network.
  * @throws {Error} - If there is any error while downloading the data from IPFS network.
  */
-export const getBlob = async (hash) => {
+export const getBlob = async (hash: string): Promise<string> => {
   try {
     const stream = node.cat(hash);
     const decoder = new TextDecoder()
@@ -45,17 +47,13 @@ export const getBlob = async (hash) => {
   }
 }
 
+
 /**
- * Upload Blob to NFT Storage
- * 
- * @typedef {Object} SafeAsync
- * @property {Boolean|Error} error
- * @property {FileDetail} data
- * 
- * @param {File} file
- * @returns {Promise<SafeAsync>}
+ * Upload Blob to Storage
+ * @param file - The file to upload.
+ * @returns A Promise that resolves to a SafeAsync object that indicates if the upload was successful or if there was an error.
  */
-export const uploadBlob = async (file) => {
+export const uploadBlob = async (file: File): Promise<SafeAsync> => {
   let detail = getCidDetail({ cid: null, file });
 
   try {
@@ -63,40 +61,39 @@ export const uploadBlob = async (file) => {
     detail = getCidDetail({ cid, file });
     return { error: false, data: detail };
   } catch (error) {
-    return { error, data: detail };
+    return { error: error as Error, data: detail };
   }
-}
+};
 
 /**
  * Get CID Detail with File
- * 
- * @typedef {Object} FileDetail
- * @property {String} cid
- * @property {Object} file
- * @property {String} file.name
- * @property {String} file.type
- * @property {Number} file.size
- * @property {Number} file.created_at
- * @property {String | undefined} secret
- * 
- * @param {Object} params
- * @param {String} params.cid
- * @param {File} params.file
- * @returns {FileDetail}
+ * @param params - An object that contains the cid, file, and secret properties.
+ * @param params.cid - The cid of the file.
+ * @param params.file - The file object.
+ * @param params.secret - The secret value.
+ * @returns A FileDetail object.
  */
-export const getCidDetail = ({ cid, file, secret }) => {
+export const getCidDetail = ({
+  cid,
+  file,
+  secret,
+}: {
+  cid: string | null;
+  file: File;
+  secret?: string;
+}): FileDetail => {
   const base = {
     name: file.name,
     type: file.type,
     size: file.size,
     created_at: Date.now(),
-    secret: secret,
-  }
+    secret,
+  };
 
   if (!cid) return { cid: null, file: base, secret: undefined };
 
   return {
     cid,
-    file: base
+    file: base,
   };
-}
+};

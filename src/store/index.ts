@@ -1,40 +1,47 @@
 import { defineStore } from "pinia";
 import Storage from "@src/services/storage";
+import type { FileDetail } from "@src/services/types";
 
 const db = new Storage("app");
 
 db.read();
-db.data ||= { version: "0.0.1", results: [] };
+db.data ??= { version: "0.0.1", results: [] };
+
+interface StoreState {
+  files: File[];
+  results: FileDetail[];
+}
 
 export const useStore = defineStore({
   id: "store",
-  state() {
+  state: (): StoreState => {
     return {
       files: [],
-      results: db.data.results
-    }
+      results: db.data!.results,
+    };
   },
   actions: {
-    resetFiles() {
+    resetFiles(this: StoreState) {
       this.files = [];
     },
-    addFiles(...files) {
+    addFiles(this: StoreState, ...files: File[]) {
       this.files.push(...files);
     },
-    addResults(...files) {
-      this.results.push(...files);
+    addResults(this: StoreState, ...results: FileDetail[]) {
+      this.results.push(...results);
       this.results = this.results.filter(({ cid }) => !!cid);
 
-      db.data.results = [...this.results];
+      db.data!.results = [...this.results];
       db.write();
     },
-    deleteResult(idx) {
+    deleteResult(this: StoreState, idx: number) {
       this.results.splice(idx, 1);
-      db.data.results = [...this.results];
+      db.data!.results = [...this.results];
       db.write();
-    }
-  }
+    },
+  },
 });
+
 
 export const useWallet = defineStore({
   id: "wallet",
@@ -44,7 +51,7 @@ export const useWallet = defineStore({
     }
   },
   actions: {
-    setAddress(address) {
+    setAddress(address: string) {
       this.address = address;
     }
   }

@@ -11,7 +11,7 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
 import { provide } from "vue";
 import { Notyf } from "notyf";
 
@@ -69,8 +69,8 @@ section#content {
 
       display: flex;
       border-radius: 1em;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05);
-      
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
       section {
         width: 414px;
         height: 414px;
@@ -83,9 +83,9 @@ section#content {
       width: 878px;
       height: 464px;
 
-      box-shadow: rgba(0,0,0,0) 0px 0px 0px 0px, rgba(0,0,0,0) 0px 0px 0px 0px, 0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05);
+      box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
       border-radius: 1em;
-      
+
       &.s-index-1 {
         z-index: 1;
         background-image: var(--liniear-gradient-color-1);
@@ -93,6 +93,7 @@ section#content {
 
         transform: rotate(2deg);
       }
+
       &.s-index-2 {
         z-index: 2;
         background-image: var(--liniear-gradient-color-2);
@@ -113,6 +114,7 @@ section#content {
           animation-name: shadow-index--1;
           animation-duration: 1s;
         }
+
         &.s-index-2 {
           animation-name: shadow-index--2;
           animation-duration: 1s;
@@ -126,17 +128,19 @@ section#content {
   from {
     transform: rotate(-2deg);
   }
-  to { 
+
+  to {
     transform: rotate(2deg);
   }
 }
+
 @keyframes shadow-index--2 {
   from {
     transform: rotate(2deg);
   }
-  to { 
+
+  to {
     transform: rotate(-2deg);
   }
 }
-
 </style>

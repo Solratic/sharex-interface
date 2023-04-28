@@ -20,7 +20,7 @@
   </header>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from "vue";
 import { ConnectWalletButton } from "vue-connect-wallet";
 import { useMetaMaskWallet } from "vue-connect-wallet";
@@ -41,11 +41,13 @@ export default {
       isDark.value = !isDark.value;
     }
     const toggleAnimation = () => {
-      const element = document.querySelector("section#content .main");
+      const element: HTMLElement | null = document.querySelector(
+        "section#content .main"
+      );
 
-      element.classList.remove("animated");
-      void element.offsetWidth;
-      element.classList.add("animated");
+      element?.classList.remove("animated");
+      void element?.offsetWidth;
+      element?.classList.add("animated");
     }
 
     const address = ref("");

@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: "SearchResult",
   props: {
@@ -20,7 +20,7 @@ export default {
       default: 0
     }
   },
-  emits: [ "onChanged" ],
+  emits: ["onChanged"],
 }
 </script>
 
@@ -36,7 +36,7 @@ export default {
 
     position: absolute;
     margin-left: .8rem;
-  }  
+  }
 
   .search-input {
     width: 100%;

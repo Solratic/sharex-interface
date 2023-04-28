@@ -29,7 +29,8 @@
           </div>
           <div class="item-cid">
             <label>
-              <input class="input-cid" type="text" readonly @focus="$event.target.select()" :value="getLinkOrKey(item)" />
+              <input class="input-cid" type="text" readonly
+                @focus="(event) => (event.target as HTMLInputElement).select()" :value="getLinkOrKey(item)" />
             </label>
 
             <a title="Copy to clipboard" @click="copyFileLink(item)">
@@ -42,14 +43,15 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
 import { ref, computed, inject } from "vue";
-
+import type { FileDetail } from "@src/services/types";
 import { useStore } from "@src/store";
 import { fileSize, copyToClipboard, generateLink } from "@src/services/helpers";
 import { ethers } from "ethers";
 import SearchResult from "@src/components/VUpload/SearchResult.vue";
 import { useWallet } from "@src/store/index";
+import { Notyf } from "notyf";
 
 export default {
   name: "PanelResult",
@@ -57,19 +59,19 @@ export default {
     SearchResult
   },
   setup() {
-    const notyf = inject("notyf");
+    const notyf = inject("notyf") as Notyf;
     const store = useStore();
     const walletStore = useWallet();
     const search = ref("");
 
-    const generateKey = (item) => {
+    const generateKey = (item: FileDetail) => {
       if (walletStore.address === "") {
         return "Please sign-in to view keys";
       }
       return ethers.utils.solidityKeccak256(["string", "string", "address"], [item.cid, item.secret, walletStore.address]);
     }
 
-    const getLinkOrKey = (item) => {
+    const getLinkOrKey = (item: FileDetail) => {
       if (!item.secret) {
         return generateLink(item);
       } else {
@@ -77,17 +79,17 @@ export default {
       }
     }
 
-    const copyLink = (item) => {
+    const copyLink = (item: FileDetail) => {
       const url = getLinkOrKey(item)
       copyToClipboard(url).then(() => {
         notyf.success("Copied to clipboard!");
       });
     }
-    const onSearchChanged = ($event) => {
-      search.value = $event.target.value;
+    const onSearchChanged = ($event: Event): void => {
+      search.value = ($event.target as HTMLInputElement).value;
     }
 
-    const onDeleteResult = (idx) => {
+    const onDeleteResult = (idx: number) => {
       store.deleteResult(idx);
     }
 

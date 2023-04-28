@@ -1,11 +1,13 @@
+import { FileDetail } from "./types";
+
 /**
  * File size human readble
- * @param {Number} bytes
- * @param {Boolean} round
- * @param {Number} fixed decimal
- * @returns {String}
- **/
-export const fileSize = (bytes, si = false, dp = 1) => {
+ * @param bytes - The size of the file in bytes.
+ * @param si - If true, use SI (decimal) units. Otherwise, use binary units (default).
+ * @param dp - The number of decimal places to round to (default 1).
+ * @returns A string representing the size of the file in human-readable form.
+ */
+export const fileSize = (bytes: number, si = false, dp = 1): string => {
   const thresh = si ? 1000 : 1024;
 
   if (Math.abs(bytes) < thresh) {
@@ -24,14 +26,13 @@ export const fileSize = (bytes, si = false, dp = 1) => {
   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
 
   return bytes.toFixed(dp) + ' ' + units[u];
-}
+};
+
 
 /**
  * Copy text to clipboard
- * @param {String} value
- * @returns {Void}
  */
-export const copyToClipboard = (value) => {
+export const copyToClipboard = (value: string) => {
   return navigator.clipboard.writeText(value)
 };
 
@@ -40,36 +41,31 @@ export const copyToClipboard = (value) => {
  * @param {String} type
  * @returns {Boolean}
  **/
-export const isVideo = (type) => {
+export const isVideo = (type: string): boolean => {
   return type.indexOf("video") >= 0;
 }
 
+
 /**
  * Generate IPFS Gateway link
- * 
- * @typedef {Object} IFile
- * @property {String} cid
- * @property {Object} file 
- * @property {String} file.type
- * 
- * @param {IFile} item
- * @param {Boolean} isShorten
- * @returns {String}
+ * @param item - The file object to generate the link for.
+ * @returns A string representing the IPFS gateway link for the specified file object.
  */
-export const generateLink = (item) => {
-  return `https://cloudflare-ipfs.com/ipfs/${item.cid}`
-}
+export const generateLink = (item: FileDetail): string => {
+  return `https://cloudflare-ipfs.com/ipfs/${item.cid}`;
+};
+
 
 /**
  * Check is website running on PWA mode.
  * @returns {Boolean}
  */
-export const isRunningOnPWA = () => {
+export const isRunningOnPWA = (): boolean => {
   return window.matchMedia("(display-mode: standalone)").matches;
 };
 
 
-export const generateRandomString = (length) => {
+export const generateRandomString = (length: number) => {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;

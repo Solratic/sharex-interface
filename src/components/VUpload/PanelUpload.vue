@@ -3,7 +3,7 @@
     <div class="content panel-upload--content">
       <div class="panel-upload--dropzone" :class="{ active: isDragged }" @dragenter="onDragEnter" @dragleave="onDragLeave"
         @drop.prevent="onDropHandler" @dragover.prevent>
-        <input type="file" multiple ref="fileRef" @change="onFileChangedHandler" />
+        <input type="file" multiple directory ref="fileRef" @change="onFileChangedHandler" />
 
         <div class="dropzone-label" @click="openSelectFile">
           <i-mdi-timer-sand v-if="(fileCount > 0)" class="icon-color" />
@@ -26,22 +26,24 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, inject, ref } from "vue";
 
 import { useStore } from "@src/store";
-import { uploadBlob } from "@src/services/ipfs.js"
+import { uploadBlob } from "@src/services/ipfs"
 import { fileSize, generateRandomString } from "@src/services/helpers";
 import { useWallet } from "@src/store/index";
 import { useMetaMaskWallet } from "vue-connect-wallet";
 import { Sharex__factory } from "@src/types/index";
 import { ethers } from "ethers"
+import { PromiseOrValue } from "@src/types/common";
+import { Notyf } from "notyf";
 
 export default {
   name: "PanelUpload",
   setup() {
-    const notyf = inject("notyf");
-    const fileRef = ref(null);
+    const notyf = inject("notyf") as Notyf;
+    const fileRef = ref<HTMLInputElement | null>(null);
     const isDragged = ref(false);
     const finished = ref(0);
     const isUploading = ref(false);
@@ -50,19 +52,20 @@ export default {
     const store = useStore();
     const walletStore = useWallet();
 
-    const onDropHandler = ($event) => {
+    const onDropHandler = ($event: DragEvent) => {
       if (isUploading.value) return false;
 
       isDragged.value = false;
 
-      fileRef.value.files = $event.dataTransfer.files;
+      fileRef.value!.files = $event.dataTransfer!.files;
 
       onFileChangedHandler();
     }
     const openSelectFile = () => {
       if (isUploading.value) return false;
-
-      fileRef.value.click();
+      if (fileRef.value) {
+        fileRef.value.click();
+      }
     }
     const onDragEnter = () => {
       isDragged.value = true;
@@ -71,36 +74,34 @@ export default {
       isDragged.value = false;
     }
 
-    const uploadToContract = async (hash, secret) => {
+    const uploadToContract = async (hash: PromiseOrValue<string>, secret: PromiseOrValue<string>) => {
       if (!wallet.isMetaMask) {
         return
       }
-      if (!wallet.address) {
+      if (!walletStore.address) {
         await wallet.connect();
       }
-      const provider = await new ethers.providers.Web3Provider(window.ethereum);
-      const signer = await provider.getSigner();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
       const expiration = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
-      const sharex = Sharex__factory.connect(walletStore.address, signer, expiration).attach("0x3FD611658eE18cC8aa91De4CD5E86FE2a9484309")
-      await sharex.uploadFile(hash, secret, expiration).then((tx) => {
-        tx.wait().then(() => {
-          notyf.success(`files successfully recored by contract.`);
-        })
-      }).catch(err => {
-        console.error(err)
-        notyf.error(err);
-      });
+      const sharex = Sharex__factory.connect(walletStore.address, signer).attach("0x3FD611658eE18cC8aa91De4CD5E86FE2a9484309")
+      return sharex.uploadFile(hash, secret, expiration).then(async (tx) => await tx.wait())
     }
 
-    /**
-     * @param {File} file
-     */
-    const uploadFileHandler = async (file) => {
+    const uploadFileHandler = async (file: File) => {
       const result = await uploadBlob(file);
       if (walletStore.address) {
         let secret = generateRandomString(32);
         result.data.secret = secret;
-        await uploadToContract(result.data.cid, secret)
+        uploadToContract(result.data.cid!, secret)
+          .then((reciept) => {
+            result.data.secret = secret;
+            notyf.success(`files successfully recored by contract.`);
+          })
+          .catch(err => {
+            console.error(err)
+            notyf.error(err);
+          });
       }
 
       finished.value++;
@@ -112,11 +113,14 @@ export default {
     }
 
     const onFileChangedHandler = async () => {
+      console.log("##############", fileRef.value?.files)
       isUploading.value = true;
 
-      store.addFiles(...fileRef.value.files);
+      if (fileRef.value?.files) {
+        store.addFiles(...fileRef.value.files);
+      }
 
-      const files = store.files.map(file => uploadFileHandler(file));
+      const files = store.files.map((file: any) => uploadFileHandler(file));
 
       try {
         let results = await Promise.all(files);
@@ -126,7 +130,7 @@ export default {
         store.addResults(...successfully.map(({ error, data: file }) => file));
         store.resetFiles();
 
-        fileRef.value.value = null;
+        fileRef.value = null
 
         if (successfully.length > 0) {
           notyf.success(`${successfully.length} files successfully processed.`);
@@ -143,13 +147,14 @@ export default {
     const fileCount = computed(() => {
       return store.files.length;
     });
+
     const result = computed(() => {
       return {
         count: store.results.length,
         size: store.results.reduce((sum, result) => {
           return sum + result.file.size;
-        }, 0)
-      }
+        }, 0),
+      };
     });
 
     return {
