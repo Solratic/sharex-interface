@@ -30,11 +30,11 @@ Sharex build with Latest Web Technology that makes hopefully can access this app
 
 ## Development
 ```bash
-$ npm install
+$ yarn
 # run dev server
-$ npm run dev
+$ yarn dev
 # build 
-$ npm run build
+$ yarn build
 ```
 
 ## Screenshot
@@ -45,5 +45,10 @@ This image also hosted on IPFS Network using this web-app.
     <img alt="Sharex" src="https://cloudflare-ipfs.com/ipfs/bafkreifdzvh24hddxqxodt336vyt75tlxlmodbyisqvy2xreqfk3nruk6m" style="width: 80%" />
 </p>
 
-## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnyancodeid%2Finsta-share.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnyancodeid%2Finsta-share?ref=badge_large)
+## Acknowledgements
+
+We would like to express our sincere gratitude to [insta-share](https://github.com/nyancodeid/insta-share) for providing us with their amazing front-end template. It has been an incredible foundation for us to continue developing our dapp, with a focus on rich privacy features and folder upload capabilities.
+
+The expertise and hard work of the insta-share team have undoubtedly played a pivotal role in the development of our project. We are indebted to their contributions, which have helped us to achieve significant milestones in our journey.
+
+Once again, we extend our heartfelt appreciation to the insta-share team for their invaluable support and for sharing their expertise with us.
