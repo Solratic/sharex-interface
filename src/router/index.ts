@@ -8,7 +8,7 @@ const routes = [
     component: VUpload
   },
   {
-    path: "/download",
+    path: "/download/:hash?",
     name: "download",
     component: () => import("@src/views/VDownload.vue")
   }

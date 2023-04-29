@@ -1,6 +1,6 @@
 import { FileDetail } from "./types";
 import JSZip from "jszip";
-
+import { ethers } from "ethers";
 /**
  * File size human readble
  * @param bytes - The size of the file in bytes.
@@ -52,10 +52,14 @@ export const isVideo = (type: string): boolean => {
  * @param item - The file object to generate the link for.
  * @returns A string representing the IPFS gateway link for the specified file object.
  */
-export const generateLink = (item: FileDetail): string => {
-  return `https://cloudflare-ipfs.com/ipfs/${item.cid}`;
+export const generateLink = (item: FileDetail, address?: string): string => {
+  const base = `${window.location.origin}${process.env.NODE_ENV === "production" ? "/sharex" : ""}`
+  if (item.secret && address) {
+    const hash = ethers.utils.solidityKeccak256(["string", "string", "address"], [item.cid, item.secret, address]);
+    return `${base}/download?value=${hash}&filename=${item.file.name}&secret=${!!item.secret}`;
+  }
+  return `${base}/download?value=${item.cid}&filename=${item.file.name}&secret=${!!item.secret}`;
 };
-
 
 /**
  * Check is website running on PWA mode.
@@ -83,7 +87,14 @@ type Folder = {
 };
 
 async function convertFileListToFolder(fileList: FileList): Promise<Folder> {
-  const rootFolder: Folder = { name: "", files: [], folders: [] };
+  if (!fileList.length) {
+    throw new Error("File list is empty");
+  }
+
+  const firstFilePath = fileList[0].webkitRelativePath.split("/");
+  const rootFolderName = firstFilePath[0];
+
+  const rootFolder: Folder = { name: rootFolderName, files: [], folders: [] };
 
   for (const file of Array.from(fileList)) {
     const path = file.webkitRelativePath.split("/");
@@ -108,7 +119,7 @@ async function convertFileListToFolder(fileList: FileList): Promise<Folder> {
 
   return rootFolder;
 }
-async function addFolderToZip(zip: JSZip, basePath: string, folder: any): Promise<void> {
+async function addFolderToZip(zip: JSZip, basePath: string, folder: Folder): Promise<void> {
   const folderPath = `${basePath}${folder.name}/`;
 
   // Add files to ZIP archive
@@ -130,7 +141,7 @@ export const zipUploadedFolder = async (files: FileList): Promise<File> => {
   const blob = await zip.generateAsync({ type: "blob" });
 
   // Convert the Blob to a File
-  const fileName = `compress-${generateRandomString(32)}.zip`;
+  const fileName = `${folder.name}-${generateRandomString(32)}.zip`;
   const file = new File([blob], fileName, { type: "application/zip" });
 
   return file;

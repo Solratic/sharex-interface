@@ -4,7 +4,7 @@ export interface FileDetail {
         name: string;
         type: string;
         size: number;
-        created_at: number;
+        created_at?: number;
     };
     id: string;
     secret?: string;
