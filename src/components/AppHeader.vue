@@ -25,7 +25,7 @@
 <script lang="ts">
 import { ref, inject } from "vue";
 import { ConnectWalletButton, useMetaMaskWallet } from "vue-connect-wallet";
-import { useWallet } from "@src/store/index";
+import { useWallet } from "@src/store";
 import { useRouter } from "vue-router";
 import { Emitter, EventType } from "mitt";
 import "vue-connect-wallet/dist/style.css";
@@ -37,13 +37,16 @@ export default {
     const isDark = ref(isDarkClassAvailable);
     const txnCount = ref(0);
     const emitter = inject("emitter") as Emitter<Record<EventType, unknown>>;
+    const chain = inject("chain") as number;
 
     emitter.on("send_txn", (tx) => {
       txnCount.value += 1;
     })
 
     emitter.on("end_txn", () => {
-      txnCount.value -= 1;
+      if (txnCount.value > 0) {
+        txnCount.value -= 1;
+      }
     })
 
     const toggleTheme = () => {
@@ -68,12 +71,9 @@ export default {
     const wallet = useMetaMaskWallet();
     const walletStore = useWallet();
 
-    wallet.onChainChanged((chainId) => {
-      window.location.reload();
-    });
-
     const connect = async () => {
       const accounts = await wallet.connect();
+      await wallet.switchOrAddChain(chain);
       if (typeof accounts === "string") {
         console.log("An error occurred" + accounts);
       }

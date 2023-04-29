@@ -47,6 +47,7 @@ export default {
     })
     provide("notyf", NotfyProvider);
     provide("emitter", mitt());
+    provide("chain", 11155111);
   }
 }
 </script>
