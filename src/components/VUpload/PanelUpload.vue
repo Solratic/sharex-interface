@@ -61,15 +61,55 @@ export default {
     const walletStore = useWallet();
 
 
-    const onDropHandler = ($event: DragEvent) => {
+    const processDirectory = async (item: FileSystemDirectoryEntry, files: File[]) => {
+      const entries = await new Promise<FileSystemEntry[]>((resolve) => item.createReader().readEntries(resolve));
+
+      for (const entry of entries) {
+        if (entry.isFile) {
+          const fileEntry = entry as FileSystemFileEntry;
+          const file = await new Promise<File>((resolve) => fileEntry.file(resolve));
+          files.push(file);
+        } else if (entry.isDirectory) {
+          const directoryEntry = entry as FileSystemDirectoryEntry;
+          await processDirectory(directoryEntry, files);
+        }
+      }
+    };
+
+
+    const onDropHandler = async ($event: DragEvent) => {
       if (isUploading.value) return false;
 
       isDragged.value = false;
 
-      fileRef.value!.files = $event.dataTransfer!.files;
+      const files: File[] = [];
+      const items = $event.dataTransfer!.items;
+
+      for (const item of items) {
+        if (item.kind === 'file' && item.webkitGetAsEntry) {
+          const entry = item.webkitGetAsEntry();
+          if (entry?.isFile) {
+            files.push(item.getAsFile()!);
+          } else if (entry?.isDirectory) {
+            const directoryEntry = entry as FileSystemDirectoryEntry;
+            await processDirectory(directoryEntry, files);
+          }
+        } else if (item.kind === 'file') {
+          files.push(item.getAsFile()!);
+        }
+      }
+
+      if (fileRef.value) {
+        Object.defineProperty(fileRef.value, 'files', {
+          get: () => files,
+          configurable: true,
+        });
+      }
 
       onFileChangedHandler();
-    }
+    };
+
+
     const openSelectFile = () => {
       if (isUploading.value) return false;
       if (fileRef.value) {
