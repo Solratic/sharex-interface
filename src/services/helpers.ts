@@ -53,7 +53,7 @@ export const isVideo = (type: string): boolean => {
  * @returns A string representing the IPFS gateway link for the specified file object.
  */
 export const generateLink = (item: FileDetail, address?: string): string => {
-  const base = `${window.location.origin}${process.env.NODE_ENV === "production" ? "/sharex" : ""}`
+  const base = `${window.location.origin}${process.env.NODE_ENV === "production" ? "/sharex-interface" : ""}`
   if (item.secret && address) {
     const hash = ethers.utils.solidityKeccak256(["string", "string", "address"], [item.cid, item.secret, address]);
     return `${base}/download?value=${hash}&filename=${item.file.name}&secret=${!!item.secret}`;
