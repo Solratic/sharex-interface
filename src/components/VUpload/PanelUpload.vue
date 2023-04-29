@@ -45,11 +45,14 @@ import { ethers } from "ethers"
 import { PromiseOrValue } from "@src/types/common";
 import { Notyf } from "notyf";
 import { v4 as uuidv4 } from 'uuid';
+import { Emitter, EventType } from "mitt";
+
 
 export default {
   name: "PanelUpload",
   setup() {
     const notyf = inject("notyf") as Notyf;
+    const emitter = inject("emitter") as Emitter<Record<EventType, unknown>>;
     const fileRef = ref<HTMLInputElement | null>(null);
     const isDragged = ref(false);
     const finished = ref(0);
@@ -59,7 +62,6 @@ export default {
     const wallet = useMetaMaskWallet();
     const store = useStore();
     const walletStore = useWallet();
-
 
     const processDirectory = async (item: FileSystemDirectoryEntry, files: File[]) => {
       const entries = await new Promise<FileSystemEntry[]>((resolve) => item.createReader().readEntries(resolve));
@@ -75,7 +77,6 @@ export default {
         }
       }
     };
-
 
     const onDropHandler = async ($event: DragEvent) => {
       if (isUploading.value) return false;
@@ -109,7 +110,6 @@ export default {
       onFileChangedHandler();
     };
 
-
     const openSelectFile = () => {
       if (isUploading.value) return false;
       if (fileRef.value) {
@@ -134,7 +134,11 @@ export default {
       const signer = provider.getSigner();
       const expiration = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
       const sharex = Sharex__factory.connect(walletStore.address, signer).attach("0x3FD611658eE18cC8aa91De4CD5E86FE2a9484309")
-      return sharex.uploadFile(hash, secret, expiration).then(async (tx) => await tx.wait())
+
+      return sharex.uploadFile(hash, secret, expiration).then(async (tx) => {
+        emitter.emit("send_txn");
+        await tx.wait();
+      })
     }
 
     const uploadFileHandler = async (file: File) => {
@@ -153,6 +157,8 @@ export default {
         } catch (err) {
           console.error(err)
           result.error = err as Error;
+        } finally {
+          emitter.emit("end_txn")
         }
       }
       const { error } = result;

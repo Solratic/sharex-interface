@@ -15,7 +15,7 @@
           <i-mdi-brightness-4 v-else class="icon-color" @click="toggleTheme" />
         </i>
       </nav>
-      <ConnectWalletButton :address="address" :dark="isDark" @click="handleConnect">
+      <ConnectWalletButton :address="address" :dark="isDark" @click="handleConnect" :txn-count="txnCount">
         Connect
       </ConnectWalletButton>
     </div>
@@ -23,19 +23,29 @@
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
-import { ConnectWalletButton } from "vue-connect-wallet";
-import { useMetaMaskWallet } from "vue-connect-wallet";
+import { ref, inject } from "vue";
+import { ConnectWalletButton, useMetaMaskWallet } from "vue-connect-wallet";
 import { useWallet } from "@src/store/index";
 import { useRouter } from "vue-router";
+import { Emitter, EventType } from "mitt";
 import "vue-connect-wallet/dist/style.css";
 
 export default {
   name: "AppHeader",
   setup() {
     const isDarkClassAvailable = document.body.classList.contains("dark-theme");
-
     const isDark = ref(isDarkClassAvailable);
+    const txnCount = ref(0);
+    const emitter = inject("emitter") as Emitter<Record<EventType, unknown>>;
+
+    emitter.on("send_txn", (tx) => {
+      txnCount.value += 1;
+    })
+
+    emitter.on("end_txn", () => {
+      txnCount.value -= 1;
+    })
+
     const toggleTheme = () => {
       document.body.classList.toggle("dark-theme");
 
@@ -43,6 +53,7 @@ export default {
 
       isDark.value = !isDark.value;
     }
+
     const toggleAnimation = () => {
       const element: HTMLElement | null = document.querySelector(
         "section#content .main"
@@ -96,6 +107,7 @@ export default {
     };
 
     return {
+      txnCount,
       isDark,
       toggleTheme,
       handleConnect,

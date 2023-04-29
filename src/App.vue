@@ -17,6 +17,7 @@ import ReloadPrompt from "@src/components/ReloadPrompt.vue";
 import Footer from "./components/Footer.vue";
 import { Notyf } from "notyf";
 import { provide } from "vue";
+import mitt from "mitt";
 
 export default {
   name: "App",
@@ -45,6 +46,7 @@ export default {
       ]
     })
     provide("notyf", NotfyProvider);
+    provide("emitter", mitt());
   }
 }
 </script>
