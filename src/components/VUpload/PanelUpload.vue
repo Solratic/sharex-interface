@@ -13,7 +13,7 @@
           <i-mdi-timer-sand v-if="(fileCount > 0)" class="icon-color" />
           <i-mdi-upload v-else class="icon-color" />
 
-          <span v-if="folderOnly">Drop folders here or click to select folders.</span>
+          <span v-if="folderOnly">Click to select a folder.</span>
           <span v-else>Drop files here or click to select files.</span>
           <div class="dropzone-is-loading" :class="{ active: (fileCount > 0 || isUploading) }">
             <div class="dropzone-loading--bar"></div>
@@ -35,10 +35,9 @@
 <script lang="ts">
 import { computed, inject, ref } from "vue";
 
-import { useStore } from "@src/store";
+import { useStore, useWallet } from "@src/store";
 import { uploadBlob } from "@src/services/ipfs"
 import { fileSize, generateRandomString, zipUploadedFolder } from "@src/services/helpers";
-import { useWallet } from "@src/store/index";
 import { useMetaMaskWallet } from "vue-connect-wallet";
 import { Sharex__factory } from "@src/types/index";
 import { ethers } from "ethers"

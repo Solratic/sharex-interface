@@ -19,7 +19,7 @@
                 <span class="item-detail--subtitle">{{ fileSize(item.file.size) }} • {{ item.file.type }}</span>
               </div>
               <div class="item-action">
-                <a v-if="isImage(item)" title="Open Link" target="_blank" :href="generateLink(item)" rel="noopener">
+                <a v-if="isImage(item)" title="Open Link" target="_blank" :href="getPreviewUrl(item)" rel="noopener">
                   <i-ri-external-link-fill class="icon-color" />
                 </a>
                 <a title="Download" @click="item.cid ? download(item) : {}">
@@ -33,11 +33,11 @@
             <div class="item-cid">
               <label>
                 <input class="input-cid" type="text" readonly
-                  @focus="(event) => (event.target as HTMLInputElement).select()" :value="getLinkOrKey(item)" />
+                  @focus="(event) => (event.target as HTMLInputElement).select()" :value="getLink(item)" />
               </label>
 
               <a title="Copy to clipboard"
-                @click="(walletStore.address === '' && !!item.secret) ? () => { } : copyFileLink(item)">
+                @click="(walletStore.address === '' && !!item.secret) ? () => { } : copyLink(item)">
                 <i-ri-clipboard-line class="icon-color" />
               </a>
             </div>
@@ -53,16 +53,15 @@ import { ref, computed, inject } from "vue";
 import type { FileDetail } from "@src/services/types";
 import { useStore } from "@src/store";
 import { fileSize, copyToClipboard, generateLink } from "@src/services/helpers";
-import { ethers } from "ethers";
 import SearchResult from "@src/components/VUpload/SearchResult.vue";
-import { useWallet } from "@src/store/index";
+import { useWallet } from "@src/store";
 import { Notyf } from "notyf";
 import { getBlob, downloadUint8ArrayFile } from "@src/services/ipfs"
 
 export default {
   name: "PanelResult",
   components: {
-    SearchResult
+    SearchResult,
   },
   methods: {
     isImage: (item: FileDetail): boolean => {
@@ -80,23 +79,24 @@ export default {
     const walletStore = useWallet();
     const search = ref("");
 
-    const generateKey = (item: FileDetail) => {
-      if (walletStore.address === "") {
+
+    const getLink = (item: FileDetail) => {
+      if (item.secret && walletStore.address === "") {
         return "Please sign-in to view hashed keys";
       }
-      return ethers.utils.solidityKeccak256(["string", "string", "address"], [item.cid, item.secret, walletStore.address]);
-    }
-
-    const getLinkOrKey = (item: FileDetail) => {
       if (!item.secret) {
         return generateLink(item);
       } else {
-        return generateKey(item);
+        return generateLink(item, walletStore.address);
       }
     }
 
+    const getPreviewUrl = (item: FileDetail) => {
+      return `https://ipfs.io/ipfs/${item.cid}`
+    }
+
     const copyLink = (item: FileDetail) => {
-      const url = getLinkOrKey(item)
+      const url = getLink(item)
       copyToClipboard(url).then(() => {
         notyf.success("Copied to clipboard!");
       });
@@ -126,9 +126,10 @@ export default {
       files,
       walletStore,
       fileSize,
-      copyFileLink: copyLink,
+      getPreviewUrl,
+      copyLink,
       generateLink,
-      getLinkOrKey,
+      getLink,
       onDeleteResult,
       onSearchChanged
     }
