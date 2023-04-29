@@ -23,13 +23,13 @@ Sharex (Instant Share) is a simple web-based application that simply upload your
 ## Tech
 Sharex build with Latest Web Technology that makes hopefully can access this app even in offline mode (cache-first). And the other cool thing is PWA (Progressive Web App) makes this app installable on Android devices, allow us to use this app to run native-like on an Android.
 
-| Tools                                   | Version                                                           | Description                                     |
-| --------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------- |
-| [vue](https://v3.vuejs.org/)            | ![Version](https://img.shields.io/badge/version-v3.2.4-blue)      | Web Framework                                   |
-| [vite](https://vitejs.dev/)             | ![Version](https://img.shields.io/badge/version-v4.3.3-blue)      | Next Generation Frontend Tooling                |
-| [pinia](https://pinia.esm.dev/)         | ![Version](https://img.shields.io/badge/version-v2.0.0.rc.6-blue) | Intuitive, type safe and flexible Store for Vue |
-| [vue-router](https://router.vuejs.org/) | ![Version](https://img.shields.io/badge/version-v4.0.10-blue)     | The official router for Vue.                    |
-| [mitt](https://github.com/developit/mitt) | ![Version](https://img.shields.io/badge/version-v3.0.0-blue)    | Light-weight event emitter                      |
+| Tools                                     | Version                                                           | Description                                     |
+| ----------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------- |
+| [vue](https://v3.vuejs.org/)              | ![Version](https://img.shields.io/badge/version-v3.2.4-blue)      | Web Framework                                   |
+| [vite](https://vitejs.dev/)               | ![Version](https://img.shields.io/badge/version-v4.3.3-blue)      | Next Generation Frontend Tooling                |
+| [pinia](https://pinia.esm.dev/)           | ![Version](https://img.shields.io/badge/version-v2.0.0.rc.6-blue) | Intuitive, type safe and flexible Store for Vue |
+| [vue-router](https://router.vuejs.org/)   | ![Version](https://img.shields.io/badge/version-v4.0.10-blue)     | The official router for Vue.                    |
+| [mitt](https://github.com/developit/mitt) | ![Version](https://img.shields.io/badge/version-v3.0.0-blue)      | Light-weight event emitter                      |
 
 ## Development
 ```bash
@@ -41,12 +41,11 @@ $ yarn build
 ```
 
 ## Screenshot
+
 This image also hosted on IPFS Network using this web-app.
 
-<p align="center">
-    <img alt="Sharex" src="https://cloudflare-ipfs.com/ipfs/bafkreic7tt7j2upgds3kgs6wldu6ryzer3hrxs5sp2rur4f6zgqzr4ndsy" style="width: 80%" />
-    <img alt="Sharex" src="https://cloudflare-ipfs.com/ipfs/bafkreifdzvh24hddxqxodt336vyt75tlxlmodbyisqvy2xreqfk3nruk6m" style="width: 80%" />
-</p>
+![dark](doc/image/dark.png)
+![bright](doc/image/bright.png)
 
 ## Acknowledgements
 
