@@ -17,7 +17,7 @@ export default defineConfig({
   build: {
     target: "es2022",
   },
-  base: "/sharex-interface/",
+  base: process.env.NODE_ENV === 'production' ? "/sharex-interface/" : "./",
   optimizeDeps: {
     esbuildOptions: {
       target: "es2022",
