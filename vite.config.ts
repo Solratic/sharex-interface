@@ -15,12 +15,12 @@ export default defineConfig({
     },
   },
   build: {
-    target: "esnext",
+    target: "es2022",
   },
   base: "/sharex-interface/",
   optimizeDeps: {
     esbuildOptions: {
-      target: "esnext",
+      target: "es2022",
       define: {
         global: 'globalThis'
       },
@@ -41,8 +41,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['/favicon.svg'],
       manifest: {
-        name: "Sharex - Instant File Sharing",
-        short_name: "Sharex",
+        name: "ShaRex - Instant File Sharing",
+        short_name: "ShaRex",
         description: "Instant File Sharing powered by IPFS Protocol",
         theme_color: "#212121",
         icons: [

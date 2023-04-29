@@ -7,7 +7,7 @@
         "src/*"
       ]
     },
-    "module": "esnext",
+    "module": "ES2022",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -17,6 +17,7 @@
     "allowJs": true,
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "vite.config.ts",
   ]
 }
