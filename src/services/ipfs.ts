@@ -1,43 +1,72 @@
 import * as IPFS from 'ipfs-core'
 import type { FileDetail, SafeAsync } from './types';
-import { kadDHT } from '@libp2p/kad-dht'
-import { mplex } from '@libp2p/mplex'
-import { noise } from '@chainsafe/libp2p-noise'
-import { id } from 'ethers/lib/utils';
-
+import type { Message } from "@libp2p/interface-pubsub"
 let node: IPFS.IPFS | null = null;
 
 const connectIPFS = async () => {
   node = await IPFS.create({
-    libp2p: {
-      addresses: {
-        listen: [
+    config: {
+      Addresses: {
+        Swarm: [
           '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-          '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
-        ]
+          '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+        ],
       },
-      relay: {
-        enabled: true,
-        hop: {
-          enabled: true,
-          active: true
-        }
-      },
-      dht: kadDHT(),
-      streamMuxers: [mplex()],
-      connectionEncryption: [noise()],
-      nat: {
-        enabled: true,
-      },
-      connectionManager: {
-        minConnections: 25,
-        maxConnections: 100,
-        pollInterval: 5000,
-        autoDial: true, // auto dial to peers we find when we have less peers than `connectionManager.minPeers`
-      },
-    }
+    },
   });
+  await node.pubsub.subscribe("announce-circuit", processAnnounce);
+  setInterval(function () {
+    if (node === null) return;
+    const msg = new TextEncoder().encode("peer-alive");
+    node.pubsub.publish("announce-circuit", msg);
+    console.log(msg)
+  }, 15000);
 }
+
+async function processAnnounce(raw_msg: Message): Promise<void> {
+  const msg = new TextDecoder().decode(raw_msg.data)
+
+  // get our peerid
+  let me = (await node!.id()).id;
+
+  // if we got a keep-alive, nothing to do
+  if (msg == "keep-alive") {
+    console.log(msg);
+    return;
+  }
+
+  const peer = msg.split("/")[9];
+  console.log("Peer: " + peer);
+  console.log("Me: " + me);
+  if (peer === me.toString()) { // return if the peer being announced is us
+    return;
+  }
+
+  // get a list of peers
+  const peers = await node!.swarm.peers();
+  for (let i in peers) {
+    // if we're already connected to the peer, don't bother doing a
+    // circuit connection
+    if (peers[i].peer.toString() == peer) {
+      return;
+    }
+  }
+  // log the address to console as we're about to attempt a connection
+  console.log("EVENT ADDRESS", msg);
+
+  // connection almost always fails the first time, but almost always
+  // succeeds the second time, so we do this:
+  try {
+    //@ts-ignore
+    await node!.swarm.connect(msg);
+  } catch (err) {
+    console.log(err);
+    //@ts-ignore
+    await node!.swarm.connect(msg);
+  }
+}
+
+
 
 /**
  * Uploads a blob of data to IPFS network using the 'node.add' method.
