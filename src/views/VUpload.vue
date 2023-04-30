@@ -9,25 +9,143 @@
       </div>
     </div>
   </section>
+  <div class="overlay" v-if="showQRCode" @click.self="closeOverlay">
+    <div class="dialog">
+      <div class="text">Share your file</div>
+      <QRCodeVue :value="QRCodeValue.value" class="qrcode" :size="200"></QRCodeVue>
+      <div class="item-cid">
+        <input class="input-cid" type="text" :value="QRCodeValue.value" readonly
+          @focus="(event) => (event.target as HTMLInputElement).select()" />
+        <button class="copy-button" @click="onCopy">
+          <i-mdi-clipboard-outline v-if="!isCopied" />
+          <i-mdi-check v-else style="color: green;" />
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { provide } from "vue";
-import { Notyf } from "notyf";
+import { inject, ref, reactive } from "vue";
+import { Emitter, EventType } from "mitt";
 
 import PanelUpload from "@src/components/VUpload/PanelUpload.vue";
 import PanelResult from "@src/components/VUpload/PanelResult.vue";
+import QRCodeVue from "qrcode.vue";
+import { copyToClipboard } from "@src/services/helpers";
+
+import { QREvents } from "@src/services/types";
+
+
 
 export default {
   name: "VUpload",
   components: {
     PanelUpload,
     PanelResult,
+    QRCodeVue,
   },
+  setup() {
+    const showQRCode = ref(false)
+    const QRCodeValue = reactive({} as QREvents)
+    const isCopied = ref(false)
+
+    const emitter = inject("emitter") as Emitter<Record<EventType, QREvents>>
+    emitter.on("open_qrcode", (e) => {
+      if (!e.value) return;
+      QRCodeValue.value = e.value;
+      showQRCode.value = true;
+    })
+
+    const onCopy = () => {
+      isCopied.value = true
+      copyToClipboard(QRCodeValue.value);
+      setTimeout(() => {
+        isCopied.value = false
+      }, 2000)
+    }
+
+    const closeOverlay = () => {
+      QRCodeValue.value = ""
+      showQRCode.value = false
+    }
+
+    return {
+      emitter,
+      onCopy,
+      closeOverlay,
+      isCopied,
+      showQRCode,
+      QRCodeValue,
+    }
+  }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 900;
+
+  .dialog {
+    position: fixed;
+    width: 30vw;
+    height: 30vh;
+    background-color: var(--gradient-800);
+    border-radius: 1.5rem;
+    padding: 20px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+
+    color: var(--contrast-color);
+
+    .text {
+      font-size: large;
+    }
+
+    canvas {
+      z-index: 999;
+    }
+
+    .item-cid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+
+      .input-cid {
+        outline: none;
+        border: none;
+        padding: 8px;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        width: 80%;
+      }
+
+      .copy-button {
+        all: unset;
+        margin-left: 2%;
+        cursor: pointer;
+      }
+    }
+
+
+  }
+}
+
+
 section#content {
   position: relative;
   height: 100%;
@@ -39,17 +157,6 @@ section#content {
     justify-content: center;
 
     height: 100%;
-
-    .tab {
-      position: absolute;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      width: 12em;
-      height: 4em;
-      border-radius: 1em;
-    }
 
     .main-content {
       position: absolute;

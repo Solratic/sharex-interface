@@ -15,3 +15,7 @@ export interface SafeAsync {
     error: boolean | Error;
     data: FileDetail;
 }
+
+export interface QREvents {
+    value: string;
+}

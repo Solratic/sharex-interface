@@ -22,6 +22,9 @@
                 <a v-if="isImage(item)" title="Open Link" target="_blank" :href="getPreviewUrl(item)" rel="noopener">
                   <i-ri-external-link-fill class="icon-color" />
                 </a>
+                <a title="QRCode" @click="item.cid ? handleQRCode(item) : {}">
+                  <i-mdi-qrcode class="icon-color" />
+                </a>
                 <a title="Download" @click="item.cid ? download(item) : {}">
                   <i-mdi-download class="icon-color" />
                 </a>
@@ -57,6 +60,8 @@ import SearchResult from "@src/components/VUpload/SearchResult.vue";
 import { useWallet } from "@src/store";
 import { Notyf } from "notyf";
 import { getBlob, downloadUint8ArrayFile } from "@src/services/ipfs"
+import { Emitter, EventType } from "mitt";
+import type { QREvents } from "@src/services/types"
 
 export default {
   name: "PanelResult",
@@ -78,7 +83,7 @@ export default {
     const store = useStore();
     const walletStore = useWallet();
     const search = ref("");
-
+    const emitter = inject("emitter") as Emitter<Record<EventType, QREvents>>;
 
     const getLink = (item: FileDetail) => {
       if (item.secret && walletStore.address === "") {
@@ -89,6 +94,13 @@ export default {
       } else {
         return generateLink(item, walletStore.address);
       }
+    }
+
+    const handleQRCode = (item: FileDetail) => {
+      if (!item.cid) return;
+      emitter.emit("open_qrcode", {
+        value: getLink(item),
+      })
     }
 
     const getPreviewUrl = (item: FileDetail) => {
@@ -131,7 +143,8 @@ export default {
       generateLink,
       getLink,
       onDeleteResult,
-      onSearchChanged
+      onSearchChanged,
+      handleQRCode,
     }
   }
 }

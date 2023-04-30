@@ -23,6 +23,7 @@
     "mitt": "^3.0.0",
     "notyf": "^3.10.0",
     "pinia": "^2.0.0-rc.6",
+    "qrcode.vue": "^3.4.0",
     "uuid": "^9.0.0",
     "vue": "^3.2.4",
     "vue-connect-wallet": "^0.1.7",

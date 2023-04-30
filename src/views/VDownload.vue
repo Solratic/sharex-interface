@@ -14,8 +14,6 @@ export default {
     components: {
         PanelDownload,
     },
-    setup() {
-    }
 }
 </script>
 
@@ -25,5 +23,7 @@ section#content {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    height: 100%;
 }
 </style>
